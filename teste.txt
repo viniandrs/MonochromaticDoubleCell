@@ -1,0 +1,3 @@
+entries: 203
+mean: 2323
+std dev: 1003
