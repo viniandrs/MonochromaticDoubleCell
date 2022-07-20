@@ -8,7 +8,11 @@
 class Detector : public G4VUserDetectorConstruction
 {
 public:
+    // Constructor for default setup (disk at the center, ..)
     Detector();
+
+    // Constructor for a custom z-position of the disk
+    Detector(G4String source_z_position);
     ~Detector();
 
     G4VPhysicalVolume *Construct() override;

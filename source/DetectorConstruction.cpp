@@ -20,6 +20,7 @@
 #include "G4LogicalBorderSurface.hh"
 
 using namespace CLHEP;
+using namespace std;
 
 /*
 X: width Y: height Z: thickness
@@ -29,6 +30,13 @@ X: width Y: height Z: thickness
 Detector::Detector() : G4VUserDetectorConstruction(), l_LAr(NULL), cryostat(NULL), cryostat_outter_radius(15.3 * cm), cryostat_inner_radius(14.9 * cm),
                        cryostat_height(70 * cm), arapuca_cell_height(49. * cm), z_source(24.5 * cm), x_source(3.5 * cm), nist_manager(G4NistManager::Instance()),
                        l_cryostat(NULL)
+{
+    GenerateMaterials();
+}
+
+Detector::Detector(G4String source_z_position) : G4VUserDetectorConstruction(), l_LAr(NULL), cryostat(NULL), cryostat_outter_radius(15.3 * cm), cryostat_inner_radius(14.9 * cm),
+                                                 cryostat_height(70 * cm), arapuca_cell_height(49. * cm), x_source(3.5 * cm), z_source(std::stof(source_z_position) * cm), 
+                                                 nist_manager(G4NistManager::Instance()), l_cryostat(NULL)
 {
     GenerateMaterials();
 }
@@ -52,28 +60,27 @@ Detector::~Detector()
 // Define all the properties related to refraction, scintillation and absortion in LAr.
 void Detector::LArOptics()
 {
-#define NUMENTRIES 14
     G4MaterialPropertiesTable *LAr_MPT = new G4MaterialPropertiesTable();
 
     // Scintillation properties
-    G4double Scint_PE[NUMENTRIES] = {9.2 * eV, 9.3 * eV, 9.4 * eV, 9.5 * eV,
+    G4double Scint_PE[14] = {9.2 * eV, 9.3 * eV, 9.4 * eV, 9.5 * eV,
                                      9.6 * eV, 9.7 * eV, 9.76377 * eV, 9.8 * eV,
                                      9.9 * eV, 10.0 * eV, 10.05 * eV, 10.1 * eV,
                                      10.2 * eV, 10.3 * eV};
 
-    G4double Scint_FAST[NUMENTRIES] = {0.000856175, 0.00839924, 0.0528321,
+    G4double Scint_FAST[14] = {0.000856175, 0.00839924, 0.0528321,
                                        0.213077, 0.551004, 0.913594, 1,
                                        0.971252, 0.66205, 0.161926, 0.289355,
                                        0.0810867, 0.0145697, 0.00167853};
 
-    G4double Scint_SLOW[NUMENTRIES] = {0.000856175, 0.00839924, 0.0528321,
+    G4double Scint_SLOW[14] = {0.000856175, 0.00839924, 0.0528321,
                                        0.213077, 0.551004, 0.913594, 1,
                                        0.971252, 0.66205, 0.161926, 0.289355,
                                        0.0810867, 0.0145697, 0.00167853};
 
-    LAr_MPT->AddProperty("FASTCOMPONENT", Scint_PE, Scint_FAST, NUMENTRIES);
-    LAr_MPT->AddProperty("SLOWCOMPONENT", Scint_PE, Scint_SLOW, NUMENTRIES);
-    LAr_MPT->AddConstProperty("SCINTILLATIONYIELD", 3621.0 / MeV);
+    LAr_MPT->AddProperty("FASTCOMPONENT", Scint_PE, Scint_FAST, 14);
+    LAr_MPT->AddProperty("SLOWCOMPONENT", Scint_PE, Scint_SLOW, 14);
+    LAr_MPT->AddConstProperty("SCINTILLATIONYIELD", 3621.0 / MeV); // reduzido em de 10x - photons/energia
     LAr_MPT->AddConstProperty("RESOLUTIONSCALE", 1.);
     LAr_MPT->AddConstProperty("FASTTIMECONSTANT", 6. * ns);
     LAr_MPT->AddConstProperty("SLOWTIMECONSTANT", 1.8 * us);
@@ -81,31 +88,28 @@ void Detector::LArOptics()
 
     // Refraction Index
 
-#define NUMENTRIES 35
-
     // I'll discover why we're using those wavelengths
-    G4double RIndex_photon_energy[NUMENTRIES] = {1.8002708291 * eV, 1.9481638324 * eV, 1.8712998009 * eV, 2.031612752 * eV, 2.122530612 * eV,
+    G4double RIndex_photon_energy[35] = {1.8002708291 * eV, 1.9481638324 * eV, 1.8712998009 * eV, 2.031612752 * eV, 2.122530612 * eV,
                                                  2.2219671291 * eV, 2.3311783976 * eV, 2.4516802288 * eV, 2.5853189354 * eV, 2.7343666014 * eV, 2.9016513225 * eV, 3.0907383696 * eV,
                                                  3.306187123 * eV, 3.5539235215 * eV, 3.8417935227 * eV, 4.1804092554 * eV, 4.5844859047 * eV, 5.075036896 * eV, 5.6831472915 * eV,
                                                  6.456829363 * eV, 7.3367183961 * eV, 8.1468599034 * eV, 8.7942508537 * eV, 9.3735970883 * eV, 9.7402642614 * eV, 10.0346587111 * eV,
                                                  10.2939327045 * eV, 10.401432965 * eV, 10.5669602239 * eV, 10.7726825649 * eV, 10.7960361308 * eV, 10.8904717926 * eV, 11.0108653265 * eV,
                                                  11.1339505034 * eV, 11.2217603734 * eV};
 
-    G4double RIndex_LAr[NUMENTRIES] = {1.2249193575067825, 1.224940655396017, 1.224940655396017, 1.2252814216237677, 1.22538791106994, 1.225686081519222,
+    G4double RIndex_LAr[35] = {1.2249193575067825, 1.224940655396017, 1.224940655396017, 1.2252814216237677, 1.22538791106994, 1.225686081519222,
                                        1.2269000612055847, 1.2272834232118046, 1.2280714451134787, 1.2281779345596509, 1.2294345100244823, 1.2309466601601273, 1.2320328525110833,
                                        1.2330125554158673, 1.2348441738900287, 1.2377406868259118, 1.2414465195527031, 1.2461320551842787, 1.2536928058625028, 1.2648954955998148,
                                        1.28143463770843, 1.301258737209988, 1.3225062859789587, 1.345444112684444, 1.364484425660028, 1.3856545275590553, 1.4069737146827237,
                                        1.4279201887447894, 1.4510731241315424, 1.4716468851320057, 1.5005409993414198, 1.5292534159333024, 1.550184981472904, 1.5699536822603057,
                                        1.5907957966651227};
 
-    LAr_MPT->AddProperty("RINDEX", RIndex_photon_energy, RIndex_LAr, NUMENTRIES);
+    LAr_MPT->AddProperty("RINDEX", RIndex_photon_energy, RIndex_LAr, 35);
 
     // Absorption
-#define NUMENTRIES 5
-    G4double ABS_photon_energy[NUMENTRIES] = {2.034 * eV, 2.341 * eV, 2.757 * eV, 3.353 * eV, 4.136 * eV};
-    G4double abs_LAr[NUMENTRIES] = {3448 * m, 4082 * m, 6329 * m, 9174 * m, 12346 * m};
+    G4double ABS_photon_energy[5] = {2.034 * eV, 2.341 * eV, 2.757 * eV, 3.353 * eV, 4.136 * eV};
+    G4double abs_LAr[5] = {3448 * m, 4082 * m, 6329 * m, 9174 * m, 12346 * m};
 
-    LAr_MPT->AddProperty("ABSLENGTH", ABS_photon_energy, abs_LAr, NUMENTRIES);
+    LAr_MPT->AddProperty("ABSLENGTH", ABS_photon_energy, abs_LAr, 5);
 
     LAr->SetMaterialPropertiesTable(LAr_MPT);
 }

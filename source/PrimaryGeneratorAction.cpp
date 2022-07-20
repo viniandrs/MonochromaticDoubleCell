@@ -10,8 +10,10 @@
 using namespace CLHEP;
 using namespace std;
 
-PrimaryGeneratorAction::PrimaryGeneratorAction() : G4VUserPrimaryGeneratorAction(),
-                                                   m_newGun(new G4ParticleGun()) {} // Instantiating our particle gun
+
+PrimaryGeneratorAction::PrimaryGeneratorAction() : G4VUserPrimaryGeneratorAction(), m_newGun(new G4ParticleGun()), z_source(24.5 * cm) {}
+
+PrimaryGeneratorAction::PrimaryGeneratorAction(G4float z) : G4VUserPrimaryGeneratorAction(), m_newGun(new G4ParticleGun()), z_source(z) {}
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
 {
@@ -27,7 +29,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
     // Choosing a random a cyllindrical coordinate
     const G4double pi = acos(-1.);
     G4double phi = 2 * pi * G4UniformRand();
-    G4double r = 0.5 * sqrt(G4UniformRand()) * aluminum_disk_diameter; //I'll try to take its sqrt
+    G4double r = 0.5 * G4UniformRand() * aluminum_disk_diameter; //I'll try to take its sqrt
 
     // Converting to cartesian coordinates
     G4double x0 = aluminum_disk_thickness * (G4UniformRand() - 0.5); // de - 0.5 a 0.5
@@ -37,7 +39,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
     // Center of aluminum disk
     G4float support_thickness = 1.0 * cm;
     G4float arapuca_cell_height = 49. * cm;
-    G4float z_source = 24.5 * cm;
     G4float x_source = 3.5 * cm;
 
     G4float disk_x = -x_source + 0.5 * (support_thickness - aluminum_disk_thickness);
@@ -54,11 +55,10 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
     //------------------- Random initial momentum direction -------------------
     G4float phi2 = 2 * pi * G4UniformRand();
     G4float theta2 = pi * G4UniformRand();
-    G4float r2 = 1;//G4UniformRand();
 
-    G4float x2 = r2 * cos(phi2) * sin(theta2);
-    G4float y2 = r2 * sin(phi2) * sin(theta2);
-    G4float z2 = r2 * cos(theta2);
+    G4float x2 = cos(phi2) * sin(theta2);
+    G4float y2 = sin(phi2) * sin(theta2);
+    G4float z2 = cos(theta2);
 
     // Momentum vector with a random spherical direction
     G4ThreeVector direction = G4ThreeVector(x2, y2, z2);

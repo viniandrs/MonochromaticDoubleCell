@@ -73,7 +73,6 @@
 #
 # Re-establish auto refreshing and verbosity:
 /vis/viewer/set/autoRefresh true
-/vis/verbose warnings
 #
 #
 ############################################################

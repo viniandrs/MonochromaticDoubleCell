@@ -42,7 +42,7 @@ void SteppingAction::UserSteppingAction(const G4Step *aStep)
     {
         // Registering the particle starting energy
         G4VUserEventInformation *eventInformationBaseClass = G4EventManager::GetEventManager()->GetUserInformation();
-        EventInformation *eventInformation = static_cast<EventInformation *>(eventInformationBaseClass);
+        EventInformation *eventInformation = static_cast<EventInformation *>(eventInformationBaseClass);        
 
         if (PreVolName == "Aluminum disk" && PostVolName == "Liquid Argon")
         {
