@@ -10,7 +10,6 @@
 using namespace CLHEP;
 using namespace std;
 
-
 PrimaryGeneratorAction::PrimaryGeneratorAction() : G4VUserPrimaryGeneratorAction(), m_newGun(new G4ParticleGun()), z_source(24.5 * cm) {}
 
 PrimaryGeneratorAction::PrimaryGeneratorAction(G4float z) : G4VUserPrimaryGeneratorAction(), m_newGun(new G4ParticleGun()), z_source(z) {}
@@ -29,10 +28,17 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
     // Choosing a random a cyllindrical coordinate
     const G4double pi = acos(-1.);
     G4double phi = 2 * pi * G4UniformRand();
-    G4double r = 0.5 * G4UniformRand() * aluminum_disk_diameter; //I'll try to take its sqrt
+    G4double r = 0.5 * sqrt(G4UniformRand()) * aluminum_disk_diameter; // The square root comes from the area dependence of the probability
+
+    
+    /* After some tests, it was found out that only particles which have been generated at x > 51 um could
+    leave the aluminum, get at the LAr and emit photons. So, we'll generate alpha particles only in
+    51um < x < 70um */
+    const G4double xmin = 51 * um;
+    const G4double xmax = 70 * um;
 
     // Converting to cartesian coordinates
-    G4double x0 = aluminum_disk_thickness * (G4UniformRand() - 0.5); // de - 0.5 a 0.5
+    G4double x0 = 51 * um + (xmax - xmin) * G4UniformRand();
     G4double y0 = r * cos(phi);
     G4double z0 = r * sin(phi);
 

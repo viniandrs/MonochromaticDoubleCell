@@ -28,13 +28,25 @@ void TrackingAction::PreUserTrackingAction(const G4Track *track)
         G4double photonEnergy = track->GetTotalEnergy() / eV;
         analysisManager->FillH1(0, photonEnergy);
     }
+    // else if (particleName == "alpha" && track->GetCreatorProcess() == NULL)
+    // {   
+    //     // preparing starting position data
+    //     G4ThreeVector initialPosition = track->GetVertexPosition();
 
-    if (particleName == "alpha" && track->GetCreatorProcess() == NULL)
-    {
-        // Building the Liquid argon scintillation spectrum
-        G4double photonEnergy = track->GetTotalEnergy() / eV;
-        analysisManager->FillH1(0, photonEnergy);
-    }
+    //     G4float aluminum_disk_thickness = 140 * um;
+    //     G4float support_thickness = 1.0 * cm;
+    //     G4float x_source = 3.5 * cm;
+    //     G4float disk_x = -x_source + 0.5 * (support_thickness - aluminum_disk_thickness);
+
+    //     G4float x0 = initialPosition.x() - disk_x;
+    //     G4float y0 = initialPosition.y();
+    //     G4float z0 = initialPosition.z();
+    //     // Registering particle's initial position
+    //     analysisManager->FillNtupleFColumn(2, x0); 
+    //     analysisManager->FillNtupleFColumn(3, y0);
+    //     analysisManager->FillNtupleFColumn(4, z0);
+        
+    // }
 }
 
 void TrackingAction::PostUserTrackingAction(const G4Track *track)

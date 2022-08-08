@@ -15,6 +15,8 @@ void EventAction::BeginOfEventAction(const G4Event *)
     G4EventManager::GetEventManager()->SetUserInformation(eventInformation);
 }
 
+// This function will be run at the end of the processing of a full particle stack created
+// when one alpha particle is generated
 void EventAction::EndOfEventAction(const G4Event *){
     G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
     G4VUserEventInformation *eventInformationBaseClass = G4EventManager::GetEventManager()->GetUserInformation();
@@ -27,8 +29,5 @@ void EventAction::EndOfEventAction(const G4Event *){
     //Fill the NTuple and the histogram
     analysisManager->FillNtupleIColumn(0, eventInformation->GetPhotonsGenerated());
     analysisManager->FillNtupleIColumn(1, eventInformation->GetPhotonsDetected());
-    //analysisManager->FillNtupleFColumn(2, eventInformation->x0);
-    //analysisManager->FillNtupleFColumn(3, eventInformation->y0);
-    //analysisManager->FillNtupleFColumn(4, eventInformation->z0);
     analysisManager->AddNtupleRow();
 }

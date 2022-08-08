@@ -35,7 +35,7 @@ Detector::Detector() : G4VUserDetectorConstruction(), l_LAr(NULL), cryostat(NULL
 }
 
 Detector::Detector(G4String source_z_position) : G4VUserDetectorConstruction(), l_LAr(NULL), cryostat(NULL), cryostat_outter_radius(15.3 * cm), cryostat_inner_radius(14.9 * cm),
-                                                 cryostat_height(70 * cm), arapuca_cell_height(49. * cm), x_source(3.5 * cm), z_source(std::stof(source_z_position) * cm), 
+                                                 cryostat_height(70 * cm), arapuca_cell_height(49. * cm), x_source(3.5 * cm), z_source(std::stof(source_z_position) * cm),
                                                  nist_manager(G4NistManager::Instance()), l_cryostat(NULL)
 {
     GenerateMaterials();
@@ -64,19 +64,19 @@ void Detector::LArOptics()
 
     // Scintillation properties
     G4double Scint_PE[14] = {9.2 * eV, 9.3 * eV, 9.4 * eV, 9.5 * eV,
-                                     9.6 * eV, 9.7 * eV, 9.76377 * eV, 9.8 * eV,
-                                     9.9 * eV, 10.0 * eV, 10.05 * eV, 10.1 * eV,
-                                     10.2 * eV, 10.3 * eV};
+                             9.6 * eV, 9.7 * eV, 9.76377 * eV, 9.8 * eV,
+                             9.9 * eV, 10.0 * eV, 10.05 * eV, 10.1 * eV,
+                             10.2 * eV, 10.3 * eV};
 
     G4double Scint_FAST[14] = {0.000856175, 0.00839924, 0.0528321,
-                                       0.213077, 0.551004, 0.913594, 1,
-                                       0.971252, 0.66205, 0.161926, 0.289355,
-                                       0.0810867, 0.0145697, 0.00167853};
+                               0.213077, 0.551004, 0.913594, 1,
+                               0.971252, 0.66205, 0.161926, 0.289355,
+                               0.0810867, 0.0145697, 0.00167853};
 
     G4double Scint_SLOW[14] = {0.000856175, 0.00839924, 0.0528321,
-                                       0.213077, 0.551004, 0.913594, 1,
-                                       0.971252, 0.66205, 0.161926, 0.289355,
-                                       0.0810867, 0.0145697, 0.00167853};
+                               0.213077, 0.551004, 0.913594, 1,
+                               0.971252, 0.66205, 0.161926, 0.289355,
+                               0.0810867, 0.0145697, 0.00167853};
 
     LAr_MPT->AddProperty("FASTCOMPONENT", Scint_PE, Scint_FAST, 14);
     LAr_MPT->AddProperty("SLOWCOMPONENT", Scint_PE, Scint_SLOW, 14);
@@ -90,18 +90,18 @@ void Detector::LArOptics()
 
     // I'll discover why we're using those wavelengths
     G4double RIndex_photon_energy[35] = {1.8002708291 * eV, 1.9481638324 * eV, 1.8712998009 * eV, 2.031612752 * eV, 2.122530612 * eV,
-                                                 2.2219671291 * eV, 2.3311783976 * eV, 2.4516802288 * eV, 2.5853189354 * eV, 2.7343666014 * eV, 2.9016513225 * eV, 3.0907383696 * eV,
-                                                 3.306187123 * eV, 3.5539235215 * eV, 3.8417935227 * eV, 4.1804092554 * eV, 4.5844859047 * eV, 5.075036896 * eV, 5.6831472915 * eV,
-                                                 6.456829363 * eV, 7.3367183961 * eV, 8.1468599034 * eV, 8.7942508537 * eV, 9.3735970883 * eV, 9.7402642614 * eV, 10.0346587111 * eV,
-                                                 10.2939327045 * eV, 10.401432965 * eV, 10.5669602239 * eV, 10.7726825649 * eV, 10.7960361308 * eV, 10.8904717926 * eV, 11.0108653265 * eV,
-                                                 11.1339505034 * eV, 11.2217603734 * eV};
+                                         2.2219671291 * eV, 2.3311783976 * eV, 2.4516802288 * eV, 2.5853189354 * eV, 2.7343666014 * eV, 2.9016513225 * eV, 3.0907383696 * eV,
+                                         3.306187123 * eV, 3.5539235215 * eV, 3.8417935227 * eV, 4.1804092554 * eV, 4.5844859047 * eV, 5.075036896 * eV, 5.6831472915 * eV,
+                                         6.456829363 * eV, 7.3367183961 * eV, 8.1468599034 * eV, 8.7942508537 * eV, 9.3735970883 * eV, 9.7402642614 * eV, 10.0346587111 * eV,
+                                         10.2939327045 * eV, 10.401432965 * eV, 10.5669602239 * eV, 10.7726825649 * eV, 10.7960361308 * eV, 10.8904717926 * eV, 11.0108653265 * eV,
+                                         11.1339505034 * eV, 11.2217603734 * eV};
 
     G4double RIndex_LAr[35] = {1.2249193575067825, 1.224940655396017, 1.224940655396017, 1.2252814216237677, 1.22538791106994, 1.225686081519222,
-                                       1.2269000612055847, 1.2272834232118046, 1.2280714451134787, 1.2281779345596509, 1.2294345100244823, 1.2309466601601273, 1.2320328525110833,
-                                       1.2330125554158673, 1.2348441738900287, 1.2377406868259118, 1.2414465195527031, 1.2461320551842787, 1.2536928058625028, 1.2648954955998148,
-                                       1.28143463770843, 1.301258737209988, 1.3225062859789587, 1.345444112684444, 1.364484425660028, 1.3856545275590553, 1.4069737146827237,
-                                       1.4279201887447894, 1.4510731241315424, 1.4716468851320057, 1.5005409993414198, 1.5292534159333024, 1.550184981472904, 1.5699536822603057,
-                                       1.5907957966651227};
+                               1.2269000612055847, 1.2272834232118046, 1.2280714451134787, 1.2281779345596509, 1.2294345100244823, 1.2309466601601273, 1.2320328525110833,
+                               1.2330125554158673, 1.2348441738900287, 1.2377406868259118, 1.2414465195527031, 1.2461320551842787, 1.2536928058625028, 1.2648954955998148,
+                               1.28143463770843, 1.301258737209988, 1.3225062859789587, 1.345444112684444, 1.364484425660028, 1.3856545275590553, 1.4069737146827237,
+                               1.4279201887447894, 1.4510731241315424, 1.4716468851320057, 1.5005409993414198, 1.5292534159333024, 1.550184981472904, 1.5699536822603057,
+                               1.5907957966651227};
 
     LAr_MPT->AddProperty("RINDEX", RIndex_photon_energy, RIndex_LAr, 35);
 
@@ -112,6 +112,8 @@ void Detector::LArOptics()
     LAr_MPT->AddProperty("ABSLENGTH", ABS_photon_energy, abs_LAr, 5);
 
     LAr->SetMaterialPropertiesTable(LAr_MPT);
+
+    LAr->GetIonisation()->SetBirksConstant(0.0000001 * mm / MeV);
 }
 
 // Generate all the materials and elements used to build the geometry
@@ -201,8 +203,21 @@ void Detector::PlaceXArapucaCell(G4ThreeVector origin)
     G4Box *frame_box = new G4Box("arapuca_cell:frame:solid:box", 0.5 * thickness, 0.5 * frame_width, 0.5 * arapuca_cell_height);
     G4Box *frame_hole = new G4Box("arapuca_cell:frame:solid:hole", 0.5 * (thickness + 1.0 * cm), 0.5 * hole_width, 0.5 * hole_height);
 
-    G4SubtractionSolid *frame = new G4SubtractionSolid("arapuca_cell:frame:solid", frame_box, frame_hole, 0, G4ThreeVector(0, 0, 0));
+    G4SubtractionSolid *frame = new G4SubtractionSolid("arapuca_cell:frame:solid_outter_frame", frame_box, frame_hole, 0, G4ThreeVector(0, 0, 0));
 
+    // Creating the divisories between the cells
+    G4float div_width = 10 * cm;
+    G4float div_height = 0.34 * cm;
+    G4float div_thickness = 0.25 * thickness;
+
+    G4Box *frame_div = new G4Box("arapuca_cell:frame:divs", 0.5 * div_thickness, 0.5 * div_width, 0.5 * div_height);
+
+    for (int i = 0; i < 5; i++)
+    {
+        
+    }
+
+    // Placing the supercell
     G4LogicalVolume *l_frame = new G4LogicalVolume(frame, teflon, "arapuca_cell:frame:logical");
 
     G4VPhysicalVolume *p_frame = new G4PVPlacement(0,                      // Rotation matrix
