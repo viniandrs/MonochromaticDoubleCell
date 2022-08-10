@@ -9,17 +9,20 @@ public:
     EventInformation();
     ~EventInformation();
 
-    void Print() const override;
+    virtual void Print() const override;
 
-    void IncreasePhotonsDetected();
+    void UpperDetection();
+    void LowerDetection();
+    
     void SetPhotonsGenerated(G4int);
     void AlphaIsValid();
 
-    inline G4int GetPhotonsDetected() { return photonsDetected; }
-    inline G4int GetPhotonsGenerated() { return photonsGenerated; }
     inline G4int GetIsAlphaValid() { return validAlpha; }
 
 public:
-    G4int photonsGenerated, photonsDetected;
+    G4int photonsGenerated;
+    G4int photonsDetected_up;
+    G4int photonsDetected_down;
+
     G4bool validAlpha;
 };

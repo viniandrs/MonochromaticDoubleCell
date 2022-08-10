@@ -8,18 +8,15 @@
 class Detector : public G4VUserDetectorConstruction
 {
 public:
-    // Constructor for default setup (disk at the center, ..)
-    Detector();
-
-    // Constructor for a custom z-position of the disk
-    Detector(G4String source_z_position);
+    // Constructor which takes the z-position of the disk as a parameter
+    Detector(G4float source_z_position);
     ~Detector();
 
     G4VPhysicalVolume *Construct() override;
 
 private:
     // Methods to construct each component separatedly
-    void PlaceXArapucaCell(G4ThreeVector center);
+    void PlaceXArapucaCells(G4ThreeVector center);
     void PlaceCryostat(G4ThreeVector origin,
                                           G4LogicalVolume *mother_volume);
     void FillCryostatWithLAr(G4LogicalVolume *mother_volume);                                          
@@ -58,7 +55,7 @@ private:
     G4float cryostat_outter_radius;
     G4float cryostat_inner_radius;
     G4float cryostat_height;
-    G4float arapuca_cell_height;
+    G4float double_cell_height;
     G4float z_source;
     G4float x_source;
 };

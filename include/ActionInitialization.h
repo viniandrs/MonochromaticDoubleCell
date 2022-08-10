@@ -8,8 +8,7 @@ using namespace std;
 class ActionInitialization : public G4VUserActionInitialization
 {
 public:
-    ActionInitialization();    
-    ActionInitialization(G4String source_z_position);
+    ActionInitialization(G4float z_position);
 
     ~ActionInitialization();
     
@@ -18,5 +17,4 @@ public:
 
 private:
     G4float z_source;
-    G4bool is_z_given;
 };

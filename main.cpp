@@ -29,6 +29,9 @@ using namespace std;
 #include "FTFP_BERT.hh"
 #include "G4OpticalPhysics.hh"
 #include "G4EmStandardPhysics_option2.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+using namespace CLHEP;
 
 int main(int argc, char **argv)
 {
@@ -37,6 +40,8 @@ int main(int argc, char **argv)
 #else
     G4RunManager *runManager = new G4RunManager();
 #endif
+    G4long myseed = 3453540;
+    CLHEP::HepRandom::setTheSeed(myseed);
 
     // Physics list setup
     G4VModularPhysicsList *physicsList = new FTFP_BERT;
@@ -51,15 +56,38 @@ int main(int argc, char **argv)
     runManager->SetUserInitialization(physicsList);
 
     // User action and initialization classes
-    if (argc >= 3){
-        runManager->SetUserInitialization(new ActionInitialization(argv[2]));
-        runManager->SetUserInitialization(new Detector(argv[2]));
-    }
-    else{
-        runManager->SetUserInitialization(new ActionInitialization());
-        runManager->SetUserInitialization(new Detector());
-    }
+    if (argc == 3)
+    {   
+        G4float z_source;
+        G4int try_z = std::stoi(argv[2]);
 
+        // We're interested in three available positions for the alpha source
+        switch (try_z)
+        {
+        case 1:
+            z_source = -0.5 * 11 * cm;
+            break;
+
+        case 2:
+            z_source = 0;
+            break;
+
+        case 3:
+            z_source = 0.5 * 11 * cm;
+            break;
+
+        default:
+            z_source = 0;
+            break;
+        }
+        runManager->SetUserInitialization(new ActionInitialization(z_source));
+        runManager->SetUserInitialization(new Detector(z_source));
+    }
+    else
+    {
+        G4cout << "WRONG PARAMETERS!!" << G4endl;
+        return 1;
+    }
 
     // Initializing the visualization manager
     auto *visManager = new G4VisExecutive();

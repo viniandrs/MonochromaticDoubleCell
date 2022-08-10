@@ -16,34 +16,45 @@ for i in range(number_of_files):
 file = ROOT.TFile(os.getcwd() + "/build/output.root")
 
 # Creating the histograms from a TTree (TChain)
-hPhDetFromTuple = ROOT.TH1I(
-    "hPhDetFromTuple", "Photons Detected per alpha", 150, 0, 1300)
+hPhDetUp = ROOT.TH1I(
+    "hPhDetFromTuple", "Photons Detected by upper cell per alpha", 150, 0, 4500)
+hPhDetDown = ROOT.TH1I(
+    "hPhDetFromTuple", "Photons Detected by lower cell per alpha", 150, 0, 4500)
+hPhDetTotal = ROOT.TH1I(
+    "hPhDetFromTuple", "Total photons detected per alpha", 150, 0, 5000)
 hAlphaSpectrum = file.Get("hAlpha")
-hPhotonSpectrum = file.Get("hEnergy")
 
 for alpha in chain:
-    photonsDetected = alpha.photonsDetected
-    hPhDetFromTuple.Fill(photonsDetected)
+    photonsDetectedUp = alpha.photonsDetectedUp
+    photonsDetectedDown = alpha.photonsDetectedDown
+    hPhDetUp.Fill(photonsDetectedUp)
+    hPhDetDown.Fill(photonsDetectedDown)
+    hPhDetTotal.Fill(photonsDetectedUp + photonsDetectedDown)
 
 # Editing histograms
-hPhDetFromTuple.GetXaxis().SetTitle("Photons/Alpha")
-hPhDetFromTuple.GetYaxis().SetTitle("#")
+hPhDetUp.GetXaxis().SetTitle("Photons/Alpha")
+hPhDetUp.GetYaxis().SetTitle("#")
+
+hPhDetDown.GetXaxis().SetTitle("Photons/Alpha")
+hPhDetDown.GetYaxis().SetTitle("#")
+
+hPhDetTotal.GetXaxis().SetTitle("Photons/Alpha")
+hPhDetTotal.GetYaxis().SetTitle("#")
 
 hAlphaSpectrum.GetXaxis().SetTitle("Alpha particle energy (MeV)")
 hAlphaSpectrum.GetYaxis().SetTitle("#")
 
-hPhotonSpectrum.GetXaxis().SetTitle("Photon energy (MeV)")
-hPhotonSpectrum.GetYaxis().SetTitle("#")
-
 # Setup of the Canvas
 c1 = ROOT.TCanvas("c1", "Histograms", 1)
-c1.Divide(3,1)
+c1.Divide(2,2)
 c1.cd(1)
-hPhDetFromTuple.Draw("HIST")
-c1.cd(2)
 hAlphaSpectrum.Draw("HIST")
+c1.cd(2)
+hPhDetUp.Draw("HIST")
 c1.cd(3)
-hPhotonSpectrum.Draw("HIST")
+hPhDetDown.Draw("HIST")
+c1.cd(4)
+hPhDetTotal.Draw("HIST")
 
 c1.Draw()
 

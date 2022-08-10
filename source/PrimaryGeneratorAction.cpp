@@ -10,8 +10,6 @@
 using namespace CLHEP;
 using namespace std;
 
-PrimaryGeneratorAction::PrimaryGeneratorAction() : G4VUserPrimaryGeneratorAction(), m_newGun(new G4ParticleGun()), z_source(24.5 * cm) {}
-
 PrimaryGeneratorAction::PrimaryGeneratorAction(G4float z) : G4VUserPrimaryGeneratorAction(), m_newGun(new G4ParticleGun()), z_source(z) {}
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
@@ -30,26 +28,25 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
     G4double phi = 2 * pi * G4UniformRand();
     G4double r = 0.5 * sqrt(G4UniformRand()) * aluminum_disk_diameter; // The square root comes from the area dependence of the probability
 
-    
     /* After some tests, it was found out that only particles which have been generated at x > 51 um could
     leave the aluminum, get at the LAr and emit photons. So, we'll generate alpha particles only in
     51um < x < 70um */
     const G4double xmin = 51 * um;
     const G4double xmax = 70 * um;
 
-    // Converting to cartesian coordinates
-    G4double x0 = 51 * um + (xmax - xmin) * G4UniformRand();
+    // Converting to cartesian coordinates -> the x coordinate is fixed
+    G4double x0 = 0;
     G4double y0 = r * cos(phi);
     G4double z0 = r * sin(phi);
 
     // Center of aluminum disk
     G4float support_thickness = 1.0 * cm;
     G4float arapuca_cell_height = 49. * cm;
-    G4float x_source = 3.5 * cm;
+    G4float x_source = 4 * cm;
 
-    G4float disk_x = -x_source + 0.5 * (support_thickness - aluminum_disk_thickness);
+    G4float disk_x = -x_source - 0.1 * um;
     G4float disk_y = 0;
-    G4float disk_z = z_source - 0.5 * arapuca_cell_height;
+    G4float disk_z = z_source;
 
     // the initial position of the particle
     m_newGun->SetParticlePosition(G4ThreeVector(disk_x + x0, disk_y + y0, disk_z + z0));
@@ -73,23 +70,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event *anEvent)
     //------------------- Random initial particle energy -------------------
 
     /*
-    For this, we'll recall that alpha particles emitted by uranium have a distribution of 2.2%, 48.9% and 48.9%,
-    for the respective energies  4.464, 4.187 and 4.759 MeV.
+    In this simulation, we'll be using a monochromatic source of E = 5.45 * MeV
     */
-    G4double random = 100 * G4UniformRand();
-
-    if (random <= 2.2)
-    {
-        m_newGun->SetParticleEnergy(4.464 * MeV);
-    }
-    else if (random > 2.2 && random < 51.1)
-    {
-        m_newGun->SetParticleEnergy(4.187 * MeV);
-    }
-    else
-    {
-        m_newGun->SetParticleEnergy(4.759 * MeV);
-    }
+    m_newGun->SetParticleEnergy(5.45 * MeV);
 
     // Generating the event
     m_newGun->GeneratePrimaryVertex(anEvent);

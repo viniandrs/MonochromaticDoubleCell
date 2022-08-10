@@ -40,16 +40,15 @@ void SteppingAction::UserSteppingAction(const G4Step *aStep)
     // Alpha spectrum
     if (particle == "alpha")
     {
-        // Registering the particle starting energy
         G4VUserEventInformation *eventInformationBaseClass = G4EventManager::GetEventManager()->GetUserInformation();
-        EventInformation *eventInformation = static_cast<EventInformation *>(eventInformationBaseClass);        
+        EventInformation *eventInformation = static_cast<EventInformation *>(eventInformationBaseClass);
 
         if (PreVolName == "Aluminum disk" && PostVolName == "Liquid Argon")
         {
             /* Get the kinetic energy an alpha particle has when it leaves the aluminum and
             register it on the spectrum */
             G4double kinEnergy = track->GetKineticEnergy();
-            analysisManager->FillH1(1, kinEnergy);
+            analysisManager->FillH1(0, kinEnergy);
             eventInformation->AlphaIsValid();
         }
     }
@@ -57,14 +56,16 @@ void SteppingAction::UserSteppingAction(const G4Step *aStep)
     // Counting the photons that entered the Arapuca and registering its alpha's energy
     else if (particle == "opticalphoton")
     {
+        G4VUserEventInformation *eventInformationBaseClass = G4EventManager::GetEventManager()->GetUserInformation();
+        EventInformation *eventInformation = static_cast<EventInformation *>(eventInformationBaseClass);
         // Checking if the particle passed from the Argon to one of the detector screens
-        if ((PreVolName == "Liquid Argon" && PostVolName == "X-Arapuca's front face") ||
-            (PreVolName == "Liquid Argon" && PostVolName == "X-Arapuca's back face"))
+        if ((PreVolName == "Liquid Argon" && PostVolName == "Upper X-Arapuca's face"))
         {
-            G4VUserEventInformation *eventInformationBaseClass = G4EventManager::GetEventManager()->GetUserInformation();
-            EventInformation *eventInformation = static_cast<EventInformation *>(eventInformationBaseClass);
-
-            eventInformation->IncreasePhotonsDetected();
+            eventInformation->UpperDetection();
+        }
+        else if ((PreVolName == "Liquid Argon" && PostVolName == "Lower X-Arapuca's face"))
+        {
+            eventInformation->LowerDetection();
         }
     }
 }

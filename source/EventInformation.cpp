@@ -2,14 +2,19 @@
 
 #include "G4VHit.hh"
 
-EventInformation::EventInformation() : photonsGenerated(0), photonsDetected(0), validAlpha(false) {}
+EventInformation::EventInformation() : photonsGenerated(0), photonsDetected_up(0), photonsDetected_down(0), validAlpha(false) {}
 EventInformation::~EventInformation() {}
 
-void EventInformation::Print() const {}
+void EventInformation::Print() const{}
 
-void EventInformation::IncreasePhotonsDetected()
+void EventInformation::UpperDetection()
 {
-    photonsDetected++;
+    photonsDetected_up++;
+}
+
+void EventInformation::LowerDetection()
+{
+    photonsDetected_down++;
 }
 
 void EventInformation::SetPhotonsGenerated(G4int value)

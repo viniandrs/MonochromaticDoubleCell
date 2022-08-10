@@ -27,16 +27,9 @@ X: width Y: height Z: thickness
 */
 
 // Constructor for member initializers
-Detector::Detector() : G4VUserDetectorConstruction(), l_LAr(NULL), cryostat(NULL), cryostat_outter_radius(15.3 * cm), cryostat_inner_radius(14.9 * cm),
-                       cryostat_height(70 * cm), arapuca_cell_height(49. * cm), z_source(24.5 * cm), x_source(3.5 * cm), nist_manager(G4NistManager::Instance()),
-                       l_cryostat(NULL)
-{
-    GenerateMaterials();
-}
-
-Detector::Detector(G4String source_z_position) : G4VUserDetectorConstruction(), l_LAr(NULL), cryostat(NULL), cryostat_outter_radius(15.3 * cm), cryostat_inner_radius(14.9 * cm),
-                                                 cryostat_height(70 * cm), arapuca_cell_height(49. * cm), x_source(3.5 * cm), z_source(std::stof(source_z_position) * cm),
-                                                 nist_manager(G4NistManager::Instance()), l_cryostat(NULL)
+Detector::Detector(G4float source_z_position) : G4VUserDetectorConstruction(), l_LAr(NULL), cryostat(NULL), cryostat_outter_radius(15.3 * cm), cryostat_inner_radius(14.9 * cm),
+                                                cryostat_height(70 * cm), double_cell_height(23.3 * cm), z_source(source_z_position), x_source(4 * cm), nist_manager(G4NistManager::Instance()),
+                                                l_cryostat(NULL)
 {
     GenerateMaterials();
 }
@@ -44,16 +37,25 @@ Detector::Detector(G4String source_z_position) : G4VUserDetectorConstruction(), 
 Detector::~Detector()
 {
     delete nist_manager;
+
     delete teflon;
     delete stainless_steel;
+    delete LAr;
+    delete PVC;
+    delete Aluminum;
+
+    delete H;
+    delete Cl;
     delete C;
     delete Si;
     delete Cr;
     delete Mn;
     delete Fe;
     delete Ni;
+    delete Al;
+
     delete cryostat;
-    delete PVC;
+    delete l_LAr;
     delete l_cryostat;
 }
 
@@ -188,42 +190,40 @@ void Detector::GenerateMaterials()
 }
 
 // Place the XArapuca cell into the LAr
-void Detector::PlaceXArapucaCell(G4ThreeVector origin)
+void Detector::PlaceXArapucaCells(G4ThreeVector origin)
 {
     // Frame ----------------------------------------------------------------------------------------------------------
     // Geometric constants
-    G4float frame_width = 10.0 * cm;
+    G4float frame_width = 9.8 * cm;
+    G4float frame_height = 23.3 * cm;
 
-    G4float hole_height = 46.7 * cm;
+    G4float hole_height = 10 * cm;
     G4float hole_width = 7.5 * cm;
 
     G4float thickness = 1.5 * cm;
 
     // Geometry
-    G4Box *frame_box = new G4Box("arapuca_cell:frame:solid:box", 0.5 * thickness, 0.5 * frame_width, 0.5 * arapuca_cell_height);
-    G4Box *frame_hole = new G4Box("arapuca_cell:frame:solid:hole", 0.5 * (thickness + 1.0 * cm), 0.5 * hole_width, 0.5 * hole_height);
+    G4Box *frame_basis = new G4Box("arapuca_doublecell/frame/solids/basis", 0.5 * thickness, 0.5 * frame_width, 0.5 * double_cell_height);
+    G4Box *frame_hole = new G4Box("arapuca_doublecell/frame/solids/holes", 0.5 * (thickness + 1.0 * cm), 0.5 * hole_width, 0.5 * hole_height);
 
-    G4SubtractionSolid *frame = new G4SubtractionSolid("arapuca_cell:frame:solid_outter_frame", frame_box, frame_hole, 0, G4ThreeVector(0, 0, 0));
+    G4SubtractionSolid *frame1hole = new G4SubtractionSolid("arapuca_doublecell/frame/solids/frame1hole",
+                                                            frame_basis,
+                                                            frame_hole,
+                                                            0,
+                                                            G4ThreeVector(0, 0, 0.5 * (11 * cm)));
+    G4SubtractionSolid *frame = new G4SubtractionSolid("arapuca_doublecell/frame/solids/frame1hole",
+                                                       frame1hole,
+                                                       frame_hole,
+                                                       0,
+                                                       G4ThreeVector(0, 0, -0.5 * (11 * cm)));
 
-    // Creating the divisories between the cells
-    G4float div_width = 10 * cm;
-    G4float div_height = 0.34 * cm;
-    G4float div_thickness = 0.25 * thickness;
-
-    G4Box *frame_div = new G4Box("arapuca_cell:frame:divs", 0.5 * div_thickness, 0.5 * div_width, 0.5 * div_height);
-
-    for (int i = 0; i < 5; i++)
-    {
-        
-    }
-
-    // Placing the supercell
-    G4LogicalVolume *l_frame = new G4LogicalVolume(frame, teflon, "arapuca_cell:frame:logical");
+    // Placing the double cell
+    G4LogicalVolume *l_frame = new G4LogicalVolume(frame, teflon, "arapuca_doublecell/frame/logical");
 
     G4VPhysicalVolume *p_frame = new G4PVPlacement(0,                      // Rotation matrix
                                                    G4ThreeVector(0, 0, 0), // Position
                                                    l_frame,                // Logical volume
-                                                   "X-Arapuca's frame",    // its name
+                                                   "DoubleCell frame",     // its name
                                                    l_LAr,                  // its mother volume
                                                    true,                   // no boolean operation
                                                    0,                      // copy number
@@ -236,48 +236,43 @@ void Detector::PlaceXArapucaCell(G4ThreeVector origin)
     // Faces ----------------------------------------------------------------------------------------------------------
 
     // Geometric constants
-    G4float face_thickness = 0.25 * thickness;
+    G4float face_thickness = 0.5 * thickness;
 
     // Positions
-    G4ThreeVector position_front_face = G4ThreeVector(
-        -0.25 * thickness,
-        0,
-        0);
+    G4ThreeVector position_up_face = G4ThreeVector(0, 0, 5.5 * cm);
 
-    G4ThreeVector position_back_face = G4ThreeVector(
-        0.25 * thickness,
-        0,
-        0);
+    G4ThreeVector position_down_face = G4ThreeVector(0, 0, -5.5 * cm);
 
-    // face facing the detector
-    G4Box *face = new G4Box("arapuca_cell:face:solid", 0.5 * face_thickness, 0.5 * hole_width, 0.5 * hole_height);
+    // upper face facing the detector
+    G4Box *face = new G4Box("arapuca_doublecell/face/solid", 0.5 * face_thickness, 0.5 * hole_width, 0.5 * hole_height);
 
-    G4LogicalVolume *l_face = new G4LogicalVolume(face, teflon, "arapuca_cell:face:logical");
+    G4LogicalVolume *l_face = new G4LogicalVolume(face, teflon, "arapuca_doublecell/face/logical"); // Is this really teflon?
 
-    G4VPhysicalVolume *p_front_face = new G4PVPlacement(0,                        // no rotation
-                                                        position_front_face,      // at position
-                                                        l_face,                   // its logical volume
-                                                        "X-Arapuca's front face", // its name
-                                                        l_LAr,                    // its mother  volume
-                                                        true,                     // no boolean operation
-                                                        0,                        // copy number
+    G4VPhysicalVolume *p_upper_face = new G4PVPlacement(0,                              // no rotation
+                                                        position_up_face,               // at position
+                                                        l_face,                         // its logical volume
+                                                        "Upper X-Arapuca's face", // its name
+                                                        l_LAr,                          // its mother  volume
+                                                        true,                           // no boolean operation
+                                                        0,                              // copy number
                                                         true);
 
-    // face back to the detector
-    G4VPhysicalVolume *p_back_face = new G4PVPlacement(0,                       // no rotation
-                                                       position_back_face,      // at position
-                                                       l_face,                  // its logical volume
-                                                       "X-Arapuca's back face", // its name
-                                                       l_LAr,                   // its mother  volume
-                                                       true,                    // no boolean operation
-                                                       0,                       // copy number
-                                                       true);
+    // lower face facing the detector
+    G4VPhysicalVolume *p_lower_face = new G4PVPlacement(0,                              // no rotation
+                                                        position_down_face,             // at position
+                                                        l_face,                         // its logical volume
+                                                        "Lower X-Arapuca's face", // its name
+                                                        l_LAr,                          // its mother  volume
+                                                        true,                           // no boolean operation
+                                                        0,                              // copy number
+                                                        true);
 
     // Visualization attributes
     G4VisAttributes *arapuca_face_vis = new G4VisAttributes(G4Colour(.7, .3, .2, 0.2));
     l_face->SetVisAttributes(arapuca_face_vis);
 }
 
+// Place the Cryostat into the world volume
 void Detector::PlaceCryostat(G4ThreeVector origin,
                              G4LogicalVolume *mother_volume)
 {
@@ -362,12 +357,12 @@ void Detector::PlaceModuleBases(G4ThreeVector origin,
     G4float base_radius = 14.5 * cm;
     G4float base_height = 2 * cm;
 
-    G4ThreeVector position1 = G4ThreeVector(0, 0, 0.5 * (arapuca_cell_height + base_height));
-    G4ThreeVector position2 = G4ThreeVector(0, 0, -0.5 * (arapuca_cell_height + base_height));
+    G4ThreeVector position1 = G4ThreeVector(0, 0, 0.5 * (double_cell_height + base_height));
+    G4ThreeVector position2 = G4ThreeVector(0, 0, -0.5 * (double_cell_height + base_height));
 
     // Geometry
 
-    G4Tubs *base_cylinder = new G4Tubs("arapuca:base:solid",
+    G4Tubs *base_cylinder = new G4Tubs("arapuca/base/solid",
                                        0, 0.5 * base_radius,
                                        0.5 * base_height,
                                        0.0 * deg, 360 * deg);
@@ -409,36 +404,36 @@ void Detector::PlaceSupportWithSource()
     aluminum_disk_rotation->rotateY(-90 * degree);
 
     // First create the support
-    auto *base_support = new G4Box("source:support:base", 0.5 * support_thickness, 0.5 * support_width, 0.5 * arapuca_cell_height);
+    auto *base_support = new G4Box("source/support/base", 0.5 * support_thickness, 0.5 * support_width, 0.5 * double_cell_height);
 
     // Second create the aluminum disk
     auto *aluminum_disk = new G4Tubs("aluminio_alpha", 0, 0.5 * aluminum_disk_diameter, 0.5 * aluminum_disk_thickness, 0.0 * deg, 360 * deg);
 
     // Subtracting the disk from the support
     auto *subtraction_disk = new G4Tubs("subtraction_disk", 0, 0.5 * aluminum_disk_diameter, 0.6 * aluminum_disk_thickness, 0.0 * deg, 360 * deg);
-    auto s_support = new G4SubtractionSolid("source:support:solid", base_support, subtraction_disk, aluminum_disk_rotation,
-                                            G4ThreeVector(0.5 * (support_thickness + 0.9 * aluminum_disk_thickness), 0, z_source - 0.5 * arapuca_cell_height));
+    auto s_support = new G4SubtractionSolid("source/support/solid", base_support, subtraction_disk, aluminum_disk_rotation,
+                                            G4ThreeVector(0.5 * (support_thickness + 0.9 * aluminum_disk_thickness), 0, z_source));
 
     // Placing the support
-    auto *l_support = new G4LogicalVolume(s_support, PVC, "source:support:logical");
-    auto *p_support = new G4PVPlacement(0,                              // no rotation
-                                        G4ThreeVector(-x_source, 0, 0), // at position
-                                        l_support,                      // its logical volume
-                                        "Support",                      // its name
-                                        l_LAr,                          // its mother  volume
-                                        true,                           // no boolean operation
-                                        0,                              // copy number
+    auto *l_support = new G4LogicalVolume(s_support, PVC, "source/support/logical");
+    auto *p_support = new G4PVPlacement(0,                                                        // no rotation
+                                        G4ThreeVector(-x_source - 0.5 * support_thickness, 0, 0), // at position
+                                        l_support,                                                // its logical volume
+                                        "Support",                                                // its name
+                                        l_LAr,                                                    // its mother  volume
+                                        true,                                                     // no boolean operation
+                                        0,                                                        // copy number
                                         true);
 
     // Now we place the aluminum at height z_source
     auto *l_aluminum_disk = new G4LogicalVolume(aluminum_disk, Aluminum, "source:aluminum_disk:logical");
-    auto *p_aluminumm_disk = new G4PVPlacement(aluminum_disk_rotation,                                                                                                  // no rotation
-                                               G4ThreeVector(-x_source + 0.5 * (support_thickness - aluminum_disk_thickness), 0, z_source - 0.5 * arapuca_cell_height), // at position
-                                               l_aluminum_disk,                                                                                                         // its logical volume
-                                               "Aluminum disk",                                                                                                         // its name
-                                               l_LAr,                                                                                                                   // its mother  volume
-                                               true,                                                                                                                    // no boolean operation
-                                               0,                                                                                                                       // copy number
+    auto *p_aluminumm_disk = new G4PVPlacement(aluminum_disk_rotation,                                                                                                // no rotation
+                                               G4ThreeVector(-x_source - 0.5 * support_thickness + 0.5 * (support_thickness - aluminum_disk_thickness), 0, z_source), // at position
+                                               l_aluminum_disk,                                                                                                       // its logical volume
+                                               "Aluminum disk",                                                                                                       // its name
+                                               l_LAr,                                                                                                                 // its mother  volume
+                                               true,                                                                                                                  // no boolean operation
+                                               0,                                                                                                                     // copy number
                                                true);
 
     G4VisAttributes *support_vis = new G4VisAttributes(G4Colour(.8, .8, .8));
@@ -476,12 +471,11 @@ G4VPhysicalVolume *Detector::Construct()
     FillCryostatWithLAr(l_world);
 
     // Placing the X-ARAPUCA module into the LAr -----------------------------------------------------------------------------
-    PlaceXArapucaCell(G4ThreeVector(0, 0, 0));
+    PlaceXArapucaCells(G4ThreeVector(0, 0, 0));
     PlaceModuleBases(G4ThreeVector(0, 0, 0), l_LAr);
 
     // Building the alpha source support and the source itself -------------------------------------------------------------------------------------------------
     PlaceSupportWithSource();
 
-    // The alpha source itself -------------------------------------------------------------------------------------------
     return p_world;
 }

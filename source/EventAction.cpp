@@ -11,8 +11,7 @@ void EventAction::BeginOfEventAction(const G4Event *)
 {
     // Set a pointer of EventInformation class object to G4Event through
     // SetUserEventInformation() method of G4EventManager
-    auto *eventInformation = new EventInformation();
-    G4EventManager::GetEventManager()->SetUserInformation(eventInformation);
+    G4EventManager::GetEventManager()->SetUserInformation(new EventInformation());
 }
 
 // This function will be run at the end of the processing of a full particle stack created
@@ -22,12 +21,11 @@ void EventAction::EndOfEventAction(const G4Event *){
     G4VUserEventInformation *eventInformationBaseClass = G4EventManager::GetEventManager()->GetUserInformation();
     EventInformation *eventInformation = static_cast<EventInformation *>(eventInformationBaseClass);
 
-    if(eventInformation->GetPhotonsGenerated() == 0 ||
-       eventInformation->GetPhotonsDetected() == 0 || 
-       eventInformation->GetIsAlphaValid() == false) return;
+    if(eventInformation->GetIsAlphaValid() == false) return;
     
     //Fill the NTuple and the histogram
-    analysisManager->FillNtupleIColumn(0, eventInformation->GetPhotonsGenerated());
-    analysisManager->FillNtupleIColumn(1, eventInformation->GetPhotonsDetected());
+    analysisManager->FillNtupleIColumn(0, eventInformation->photonsGenerated);
+    analysisManager->FillNtupleIColumn(1, eventInformation->photonsDetected_up);
+    analysisManager->FillNtupleIColumn(2, eventInformation->photonsDetected_down);
     analysisManager->AddNtupleRow();
 }
